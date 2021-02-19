@@ -25,6 +25,7 @@ package org.springframework.boot;
  * @see SpringApplication#addBootstrapper(Bootstrapper)
  * @see BootstrapRegistry
  */
+// TODO: 2021/2/16 用于初始化DefaultBootstrapContext
 public interface Bootstrapper {
 
 	/**

@@ -31,6 +31,7 @@ import org.springframework.core.env.Environment;
  * @author Phillip Webb
  * @since 2.4.0
  */
+// TODO: 2021/2/16 用于启动阶段的引导上下文
 public interface BootstrapContext {
 
 	/**

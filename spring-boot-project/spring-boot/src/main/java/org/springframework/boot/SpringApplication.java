@@ -280,6 +280,7 @@ public class SpringApplication {
 		Assert.notNull(primarySources, "PrimarySources must not be null");
 		this.primarySources = new LinkedHashSet<>(Arrays.asList(primarySources));
 		this.webApplicationType = WebApplicationType.deduceFromClasspath();
+		// TODO: 2021/2/16 初始化bootstrapper,默认是 TextEncryptorConfigBootstrapper
 		this.bootstrappers = new ArrayList<>(getSpringFactoriesInstances(Bootstrapper.class));
 		setInitializers((Collection) getSpringFactoriesInstances(ApplicationContextInitializer.class));
 		setListeners((Collection) getSpringFactoriesInstances(ApplicationListener.class));
@@ -310,13 +311,17 @@ public class SpringApplication {
 	public ConfigurableApplicationContext run(String... args) {
 		StopWatch stopWatch = new StopWatch();
 		stopWatch.start();
+		// TODO: 2021/2/16 创建引导上下文 
 		DefaultBootstrapContext bootstrapContext = createBootstrapContext();
 		ConfigurableApplicationContext context = null;
+		// TODO: 2021/2/19 具体是干啥的,还不清楚
 		configureHeadlessProperty();
+		// TODO: 2021/2/16 获取监听器，默认是：EventPublishingRunListener
 		SpringApplicationRunListeners listeners = getRunListeners(args);
 		listeners.starting(bootstrapContext, this.mainApplicationClass);
 		try {
 			ApplicationArguments applicationArguments = new DefaultApplicationArguments(args);
+			// TODO: 2021/2/16 准备环境,如果是web返回的是StandardServletEnvironment
 			ConfigurableEnvironment environment = prepareEnvironment(listeners, bootstrapContext, applicationArguments);
 			configureIgnoreBeanInfo(environment);
 			Banner printedBanner = printBanner(environment);
@@ -349,6 +354,7 @@ public class SpringApplication {
 
 	private DefaultBootstrapContext createBootstrapContext() {
 		DefaultBootstrapContext bootstrapContext = new DefaultBootstrapContext();
+		// TODO: 2021/2/16 初始化bootstrapContext
 		this.bootstrappers.forEach((initializer) -> initializer.intitialize(bootstrapContext));
 		return bootstrapContext;
 	}
@@ -356,12 +362,18 @@ public class SpringApplication {
 	private ConfigurableEnvironment prepareEnvironment(SpringApplicationRunListeners listeners,
 			DefaultBootstrapContext bootstrapContext, ApplicationArguments applicationArguments) {
 		// Create and configure the environment
+		// TODO: 2021/2/16 如果是web返回的是StandardServletEnvironment
 		ConfigurableEnvironment environment = getOrCreateEnvironment();
 		configureEnvironment(environment, applicationArguments.getSourceArgs());
+		// TODO: 2021/2/16 attach之后 environment的propertySources多了一个ConfigurationPropertySourcesPropertySource
 		ConfigurationPropertySources.attach(environment);
+		// TODO: 2021/2/16 实际是调用EventPublishingRunListener 的environmentPrepared进行广播应用程序启动事件
 		listeners.environmentPrepared(bootstrapContext, environment);
+		// TODO: 2021/2/16 将defaultProperties的propertySource挪到最后面
 		DefaultPropertiesPropertySource.moveToEnd(environment);
+		// TODO: 2021/2/16 如果设置了额外的profile，添加到environment
 		configureAdditionalProfiles(environment);
+		// TODO: 2021/2/16 将environment的spring.main属性绑定到当前类上
 		bindToSpringApplication(environment);
 		if (!this.isCustomEnvironment) {
 			environment = new EnvironmentConverter(getClassLoader()).convertEnvironmentIfNecessary(environment,
@@ -497,9 +509,11 @@ public class SpringApplication {
 	 */
 	protected void configureEnvironment(ConfigurableEnvironment environment, String[] args) {
 		if (this.addConversionService) {
+			// TODO: 2021/2/16 默认设置转换service，用于类型转换 参考：https://blog.csdn.net/zhuqiuhui/article/details/82316720
 			ConversionService conversionService = ApplicationConversionService.getSharedInstance();
 			environment.setConversionService((ConfigurableConversionService) conversionService);
 		}
+		// TODO: 2021/2/16
 		configurePropertySources(environment, args);
 		configureProfiles(environment, args);
 	}
@@ -563,6 +577,9 @@ public class SpringApplication {
 	 * Bind the environment to the {@link SpringApplication}.
 	 * @param environment the environment to bind
 	 */
+	// TODO: 2021/2/16 参考 https://blog.csdn.net/u013310115/article/details/82948785
+	// TODO: 2021/2/19 将spring.main为前缀的属性和SpringApplication的对应的属性进行绑定
+	// TODO: 2021/2/19 以spring.main.banner-mode为例
 	protected void bindToSpringApplication(ConfigurableEnvironment environment) {
 		try {
 			Binder.get(environment).bind("spring.main", Bindable.ofInstance(this));
