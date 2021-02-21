@@ -42,6 +42,9 @@ public interface ApplicationContextFactory {
 	 * appropriate context for the {@link WebApplicationType}.
 	 */
 	ApplicationContextFactory DEFAULT = (webApplicationType) -> {
+		// TODO: 2021/2/21 如果webApplicationType的值是SERVLET，那么实例化AnnotationConfigServletWebServerApplicationContext，
+		//  如果是REACTIVE则实例化AnnotationConfigReactiveWebServerApplicationContext（响应式编程），
+		//  如果既不是SERVLET、也不是REACTIVE，那么则是默认情况（也就是我们所说的非web引用），实例化AnnotationConfigApplicationContext。
 		try {
 			switch (webApplicationType) {
 			case SERVLET:

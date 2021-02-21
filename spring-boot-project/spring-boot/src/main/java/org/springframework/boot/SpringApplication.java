@@ -324,9 +324,12 @@ public class SpringApplication {
 			// TODO: 2021/2/16 准备环境,如果是web返回的是StandardServletEnvironment
 			ConfigurableEnvironment environment = prepareEnvironment(listeners, bootstrapContext, applicationArguments);
 			configureIgnoreBeanInfo(environment);
+			// TODO: 2021/2/21 打印banner
 			Banner printedBanner = printBanner(environment);
+			// TODO: 2021/2/21 创建应用上下文
 			context = createApplicationContext();
 			context.setApplicationStartup(this.applicationStartup);
+			// TODO: 2021/2/21 准备上下文
 			prepareContext(bootstrapContext, context, environment, listeners, applicationArguments, printedBanner);
 			refreshContext(context);
 			afterRefresh(context, applicationArguments);
@@ -376,9 +379,11 @@ public class SpringApplication {
 		// TODO: 2021/2/16 将environment的spring.main属性绑定到当前类上
 		bindToSpringApplication(environment);
 		if (!this.isCustomEnvironment) {
+			// TODO: 2021/2/19 将StandardServletEnvironment转成 StandardEnvironment
 			environment = new EnvironmentConverter(getClassLoader()).convertEnvironmentIfNecessary(environment,
 					deduceEnvironmentClass());
 		}
+		// TODO: 2021/2/19 这一步是将上面添加的ConfigurationPropertySourcesPropertySource给移除掉
 		ConfigurationPropertySources.attach(environment);
 		return environment;
 	}
@@ -397,8 +402,11 @@ public class SpringApplication {
 	private void prepareContext(DefaultBootstrapContext bootstrapContext, ConfigurableApplicationContext context,
 			ConfigurableEnvironment environment, SpringApplicationRunListeners listeners,
 			ApplicationArguments applicationArguments, Banner printedBanner) {
+		// TODO: 2021/2/21 设置上下文的environment
 		context.setEnvironment(environment);
+		// TODO: 2021/2/21 应用上下文后处理
 		postProcessApplicationContext(context);
+		// TODO: 2021/2/21 应用 Initializer到context中
 		applyInitializers(context);
 		listeners.contextPrepared(context);
 		bootstrapContext.close(context);
@@ -567,6 +575,8 @@ public class SpringApplication {
 	}
 
 	private void configureIgnoreBeanInfo(ConfigurableEnvironment environment) {
+		// TODO: 2021/2/21 默认是true，意味着下面这个if会跳过
+		// TODO: 2021/2/21 跳过搜索BeanInfo类，不是很理解?
 		if (System.getProperty(CachedIntrospectionResults.IGNORE_BEANINFO_PROPERTY_NAME) == null) {
 			Boolean ignore = environment.getProperty("spring.beaninfo.ignore", Boolean.class, Boolean.TRUE);
 			System.setProperty(CachedIntrospectionResults.IGNORE_BEANINFO_PROPERTY_NAME, ignore.toString());
@@ -611,6 +621,7 @@ public class SpringApplication {
 	 * @see #setApplicationContextFactory(ApplicationContextFactory)
 	 */
 	protected ConfigurableApplicationContext createApplicationContext() {
+		// TODO: 2021/2/21 factory默认是 ApplicationContextFactory.DEFAULT
 		return this.applicationContextFactory.create(this.webApplicationType);
 	}
 
@@ -620,6 +631,7 @@ public class SpringApplication {
 	 * @param context the application context
 	 */
 	protected void postProcessApplicationContext(ConfigurableApplicationContext context) {
+		// TODO: 2021/2/21 由于beanNameGenerator和resourceLoader默认为null，所以前面两个if块都不会执行
 		if (this.beanNameGenerator != null) {
 			context.getBeanFactory().registerSingleton(AnnotationConfigUtils.CONFIGURATION_BEAN_NAME_GENERATOR,
 					this.beanNameGenerator);
@@ -633,6 +645,7 @@ public class SpringApplication {
 			}
 		}
 		if (this.addConversionService) {
+			// TODO: 2021/2/21 设置转换class
 			context.getBeanFactory().setConversionService(ApplicationConversionService.getSharedInstance());
 		}
 	}
@@ -645,6 +658,7 @@ public class SpringApplication {
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	protected void applyInitializers(ConfigurableApplicationContext context) {
+		// TODO: 2021/2/21 遍历 Initializers 逐个执行初始化方法
 		for (ApplicationContextInitializer initializer : getInitializers()) {
 			Class<?> requiredType = GenericTypeResolver.resolveTypeArgument(initializer.getClass(),
 					ApplicationContextInitializer.class);
